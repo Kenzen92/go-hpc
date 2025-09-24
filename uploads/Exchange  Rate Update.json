@@ -1,0 +1,168 @@
+{
+  "name": "Exchange  Rate Update",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f79b9b29-18a0-46f9-a946-5e1e9b381bc0",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "content": "## Daily Exchange Rate Email Notification\n\nQuery the exchange rate API for the GBP -> Euro Rate\nPing an email to me with the results - use LLM to offer suggestions on if it's good or not just for lols",
+        "height": 272
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        528,
+        -320
+      ],
+      "typeVersion": 1,
+      "id": "3c4c9cd5-571f-4fba-b5fc-b58c3b9fb1b1",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "url": "https://v6.exchangerate-api.com/v6/1fe7108960aff4286edeaa37/latest/GBP",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "5af0fd5b-df9b-46aa-9964-40223857bd99",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "78c834e0-dd7a-420b-bc85-72aeddb842a5",
+              "name": "conversion_rates.EUR",
+              "value": "={{ $json.conversion_rates.EUR }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "2a1f2aff-df50-4fdf-a8fd-a88d18df0728",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fromEmail": "jamespeterkenny@gmail.com",
+        "toEmail": "jamespeterkenny@gmail.com",
+        "subject": "Today's Exchange rate update",
+        "html": "=<h1>Here's today's update</h1>\n\n<p>The GPB conversion rate is {{ $json.conversion_rates.EUR }}</p>\n\nWe should wait for something close to 1.8 to transfer",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "1bfad9be-6dcf-4adf-9065-62045e35d29d",
+      "name": "Send email",
+      "webhookId": "435dabcd-d0c6-4779-af31-5be14465b6b0",
+      "credentials": {
+        "smtp": {
+          "id": "mQ01FFRcCqxPT1Bf",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        224
+      ],
+      "id": "04964fdf-f9eb-4976-a554-409dca06fed3",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7813d53f-ead9-4cf3-a783-4ea09ed297f3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8adc38df4c003ad0efe07bd82ca4fd4c895b7c34f1aff919e35e181b04481854"
+  },
+  "id": "UXnniNi9loIkYpr0",
+  "tags": []
+}
